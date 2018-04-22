@@ -65,7 +65,8 @@ public:
             case 0x10: // add
             {
                 auto [ rdst, rsrc ] = this->read_registers();
-                this->register_file[rdst] += this->register_file[rsrc];
+                this->flags.carry = __builtin_add_overflow(this->register_file[rdst], this->register_file[rsrc], &this->register_file[rdst]);
+                this->flags.zero = this->register_file[rdst] == 0;
                 break;
             }
             case 0x11: // addi
@@ -151,11 +152,12 @@ private:
 int main() {
     Mcu mcu;
 
-    mcu.load_program({ 0x02, 0x00, 0x12, 0x34, 0x02, 0x01, 0x56, 0x78 });
+    mcu.load_program({ 0x02, 0x00, 0xFF, 0xFF, 0x02, 0x01, 0x00, 0x01, 0x10, 0x01 });
+    mcu.step();
     mcu.step();
     mcu.step();
 
-    fmt::print("R0: 0x{:x}\nR1: 0x{:x}\n", mcu.register_file[0], mcu.register_file[1]);
+    fmt::print("R0: 0x{:x}\nR1: 0x{:x}\nCF: {}", mcu.register_file[0], mcu.register_file[1], mcu.flags.carry);
 
     return 0;
 }
