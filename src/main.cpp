@@ -3,7 +3,7 @@
 
 #include <fmt/format.h>
 
-#include <opcodes.h>
+#include <opcodes.hpp>
 
 #define HIGH_NIBBLE(X) ((X) & 0xF0u)
 #define LOW_NIBBLE(X) ((X) & 0x0Fu)
