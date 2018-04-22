@@ -11,9 +11,6 @@
 #define HIGH_BYTE(X) static_cast<uint8_t>(((X) & 0xFF00u) >> 8)
 #define LOW_BYTE(X) static_cast<uint8_t>(((X) & 0x00FFu) >> 0)
 
-using u8 = uint8_t;
-using u16 = uint16_t;
-
 class Mcu {
 public:
     void load_program(const std::vector<u8>& program) {
