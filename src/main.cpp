@@ -106,8 +106,8 @@ public:
         }
     }
 
-    std::array<u8, 0x10000> memory;
-    std::array<u16, 16> registers;
+    std::array<u8, 0x10000> memory {};
+    std::array<u16, 16> registers {};
 
     struct {
         bool carry = false;
