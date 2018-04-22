@@ -3,7 +3,7 @@
 
 #include <fmt/format.h>
 
-#include "opcodes.h"
+#include <opcodes.h>
 
 #define HIGH_NIBBLE(X) ((X) & 0xF0u)
 #define LOW_NIBBLE(X) ((X) & 0x0Fu)
@@ -37,6 +37,7 @@ public:
             {
                 auto [ rDst, rSrc ] = this->read_registers();
                 this->registers[rDst] = this->registers[rSrc];
+                break;
             }
             case MOVI:
             {
@@ -86,6 +87,7 @@ public:
                 auto high = this->memory[addr + 1];
 
                 this->registers[rDst] = high << 8 | low;
+                break;
             }
             case STORE:
             {
@@ -95,6 +97,11 @@ public:
 
                 this->memory[addr + 0] = LOW_BYTE(value);
                 this->memory[addr + 1] = HIGH_BYTE(value);
+                break;
+            }
+            default:
+            {
+                throw std::domain_error { "Illegal opcode" };
             }
         }
     }
