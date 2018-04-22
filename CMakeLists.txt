@@ -15,3 +15,7 @@ set(SOURCE_FILES
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} src/main.cpp)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE src/)
 target_link_libraries(${PROJECT_NAME} fmt)
+
+# Tests
+add_executable(${PROJECT_NAME}_tests ${SOURCE_FILES} test/main.cpp)
+target_include_directories(${PROJECT_NAME}_tests SYSTEM PRIVATE src/)
