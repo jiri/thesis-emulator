@@ -3,6 +3,8 @@
 
 #include <fmt/format.h>
 
+#include "opcodes.h"
+
 #define HIGH_NIBBLE(X) ((X) & 0xF0u)
 #define LOW_NIBBLE(X) ((X) & 0x0Fu)
 
@@ -26,56 +28,56 @@ public:
         u8 opcode = this->read_byte();
 
         switch (opcode) {
-            case 0x00: // nop
+            case NOP:
             {
                 this->read_byte();
                 break;
             }
-            case 0x01: // mov
+            case MOV:
             {
                 auto [ rDst, rSrc ] = this->read_registers();
                 this->registers[rDst] = this->registers[rSrc];
             }
-            case 0x02: // movi
+            case MOVI:
             {
                 auto rDst  = this->read_register();
                 auto value = this->read_word();
                 this->registers[rDst] = value;
                 break;
             }
-            case 0x10: // add
+            case ADD:
             {
                 auto [ rDst, rSrc ] = this->read_registers();
                 this->flags.carry = __builtin_add_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);
                 this->flags.zero = this->registers[rDst] == 0;
                 break;
             }
-            case 0x11: // addi
+            case ADDI:
             {
                 auto rDst  = this->read_register();
                 auto value = this->read_word();
                 this->registers[rDst] = value;
                 break;
             }
-            case 0x12: // adc
+            case ADDC:
             {
-                throw std::domain_error { "adc is not yet implemented" };
+                throw std::domain_error { "addc is not yet implemented" };
             }
-            case 0x20: // jmp
+            case JMP:
             {
                 this->read_byte();
                 this->pc = this->read_word();
                 break;
             }
-            case 0x21: // brif
+            case BRIF:
             {
                 throw std::domain_error { "brif is not yet implemented" };
             }
-            case 0x22: // brnif
+            case BRNIF:
             {
                 throw std::domain_error { "brnif is not yet implemented" };
             }
-            case 0x30: // load
+            case LOAD:
             {
                 auto rDst = this->read_register();
                 auto addr = this->read_word();
@@ -85,7 +87,7 @@ public:
 
                 this->registers[rDst] = high << 8 | low;
             }
-            case 0x31: // store
+            case STORE:
             {
                 auto rSrc  = this->read_register();
                 auto addr  = this->read_word();
