@@ -52,28 +52,28 @@ public:
             }
             case 0x01: // mov
             {
-                auto [ rdst, rsrc ] = this->read_registers();
-                this->register_file[rdst] = this->register_file[rsrc];
+                auto [ rDst, rSrc ] = this->read_registers();
+                this->registers[rDst] = this->registers[rSrc];
             }
             case 0x02: // movi
             {
-                auto reg   = this->read_register();
+                auto rDst  = this->read_register();
                 auto value = this->read_word();
-                this->register_file[reg] = value;
+                this->registers[rDst] = value;
                 break;
             }
             case 0x10: // add
             {
-                auto [ rdst, rsrc ] = this->read_registers();
-                this->flags.carry = __builtin_add_overflow(this->register_file[rdst], this->register_file[rsrc], &this->register_file[rdst]);
-                this->flags.zero = this->register_file[rdst] == 0;
+                auto [ rDst, rSrc ] = this->read_registers();
+                this->flags.carry = __builtin_add_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);
+                this->flags.zero = this->registers[rDst] == 0;
                 break;
             }
             case 0x11: // addi
             {
-                auto rdst  = this->read_register();
+                auto rDst  = this->read_register();
                 auto value = this->read_word();
-                this->register_file[rdst] = value;
+                this->registers[rDst] = value;
                 break;
             }
             case 0x12: // adc
@@ -96,19 +96,19 @@ public:
             }
             case 0x30: // load
             {
-                auto rdst = this->read_register();
+                auto rDst = this->read_register();
                 auto addr = this->read_word();
 
                 auto low  = this->memory[addr + 0];
                 auto high = this->memory[addr + 1];
 
-                this->register_file[rdst] = high << 8 | low;
+                this->registers[rDst] = high << 8 | low;
             }
             case 0x31: // store
             {
-                auto rsrc = this->read_register();
-                auto addr = this->read_word();
-                auto value = this->register_file[rsrc];
+                auto rSrc  = this->read_register();
+                auto addr  = this->read_word();
+                auto value = this->registers[rSrc];
 
                 this->memory[addr + 0] = LOW_BYTE(value);
                 this->memory[addr + 1] = HIGH_BYTE(value);
@@ -117,7 +117,7 @@ public:
     }
 
     std::array<u8, 0x10000> memory;
-    std::array<u16, 16> register_file;
+    std::array<u16, 16> registers;
 
     struct {
         bool carry = false;
@@ -157,7 +157,7 @@ int main() {
     mcu.step();
     mcu.step();
 
-    fmt::print("R0: 0x{:x}\nR1: 0x{:x}\nCF: {}", mcu.register_file[0], mcu.register_file[1], mcu.flags.carry);
+    fmt::print("R0: 0x{:x}\nR1: 0x{:x}\nCF: {}", mcu.registers[0], mcu.registers[1], mcu.flags.carry);
 
     return 0;
 }
