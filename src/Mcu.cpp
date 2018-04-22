@@ -8,8 +8,8 @@
 #define HIGH_NIBBLE(X) ((X) & 0xF0u)
 #define LOW_NIBBLE(X) ((X) & 0x0Fu)
 
-#define HIGH_BYTE(X) static_cast<uint8_t>(((X) & 0xFF00u) >> 8)
-#define LOW_BYTE(X) static_cast<uint8_t>(((X) & 0x00FFu) >> 0)
+#define HIGH_BYTE(X) static_cast<uint8_t>(((X) & 0xFF00u) >> 8u)
+#define LOW_BYTE(X) static_cast<uint8_t>(((X) & 0x00FFu) >> 0u)
 
 void Mcu::load_program(const std::vector<u8> &program) {
     assert(memory.size() >= program.size());
