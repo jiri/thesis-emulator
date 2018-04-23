@@ -7,6 +7,7 @@
 class Mcu {
 public:
     void load_program(const std::vector<u8>& program);
+    void steps(u16 steps);
     void step();
 
     u16 pc = 0;
