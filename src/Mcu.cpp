@@ -2,15 +2,41 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <fstream>
+#include <string>
+#include <iostream>
+
+#include <fmt/format.h>
 
 #include <opcodes.hpp>
-#include "Mcu.hpp"
 
 #define HIGH_NIBBLE(X) ((X) & 0xF0u)
 #define LOW_NIBBLE(X) ((X) & 0x0Fu)
 
 #define HIGH_BYTE(X) static_cast<uint8_t>(((X) & 0xFF00u) >> 8u)
 #define LOW_BYTE(X) static_cast<uint8_t>(((X) & 0x00FFu) >> 0u)
+
+void Mcu::compile_and_load(const std::string &source) {
+    std::string filename = std::tmpnam(nullptr);
+    std::string assembler = std::getenv("ASSEMBLER");
+    std::string command = fmt::format("{} {} -o {}.bin", assembler, filename, filename);
+
+    if (assembler.empty()) {
+        throw std::runtime_error { "ASSEMBLER variable not set" };
+    }
+
+    /* Write the source */
+    std::ofstream(filename) << source;
+
+    /* Compile the source */
+    std::system(command.c_str());
+
+    /* Read whole output file */
+    std::ifstream ifs(filename + ".bin", std::ios_base::binary | std::ios_base::ate);
+    auto size = ifs.tellg();
+    ifs.seekg(0, std::ios_base::beg);
+    ifs.read(reinterpret_cast<char *>(this->program.data()), size);
+}
 
 void Mcu::load_program(const std::vector<u8>& binary) {
     assert(this->program.size() >= binary.size());
