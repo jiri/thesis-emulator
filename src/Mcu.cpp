@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include <opcodes.hpp>
+#include "Mcu.hpp"
 
 #define HIGH_NIBBLE(X) ((X) & 0xF0u)
 #define LOW_NIBBLE(X) ((X) & 0x0Fu)
@@ -11,10 +12,9 @@
 #define HIGH_BYTE(X) static_cast<uint8_t>(((X) & 0xFF00u) >> 8u)
 #define LOW_BYTE(X) static_cast<uint8_t>(((X) & 0x00FFu) >> 0u)
 
-void Mcu::load_program(const std::vector<u8> &program) {
-    assert(memory.size() >= program.size());
-
-    std::copy(program.begin(), program.end(), this->memory.begin());
+void Mcu::load_program(const std::vector<u8>& binary) {
+    assert(this->program.size() >= binary.size());
+    std::copy(binary.begin(), binary.end(), this->program.begin());
 }
 
 void Mcu::step() {
@@ -23,75 +23,161 @@ void Mcu::step() {
     u8 opcode = this->read_byte();
 
     switch (opcode) {
-        case NOP:
-        {
-            this->read_byte();
-            break;
-        }
-        case MOV:
-        {
+        case MOV: {
             auto [ rDst, rSrc ] = this->read_register_pair();
             this->registers[rDst] = this->registers[rSrc];
             break;
         }
-        case MOVI:
-        {
-            auto rDst  = this->read_register();
-            auto value = this->read_word();
+        case LDI: {
+            auto rDst = this->read_register();
+            auto value = this->read_byte();
             this->registers[rDst] = value;
             break;
         }
-        case ADD:
-        {
+        case LD: {
+            auto rDst = this->read_register();
+            auto addr = this->read_word();
+            this->registers[rDst] = this->memory[addr];
+            break;
+        }
+        case ST: {
+            auto rDst = this->read_register();
+            auto addr = this->read_word();
+            this->memory[addr] = this->registers[rDst];
+            break;
+        }
+        case PUSH: {
+            auto rSrc = this->read_register();
+            this->memory[sp--] = this->registers[rSrc];
+            break;
+        }
+        case POP: {
+            auto rDst = this->read_register();
+            this->registers[rDst] = this->memory[++sp];
+            break;
+        }
+        case LPM: {
+            auto rDst = this->read_register();
+            auto addr = this->read_word();
+            this->registers[rDst] = this->program[addr];
+            break;
+        }
+        case ADD: {
             auto [ rDst, rSrc ] = this->read_register_pair();
             this->flags.carry = __builtin_add_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);
             this->flags.zero = this->registers[rDst] == 0;
             break;
         }
-        case ADDI:
-        {
-            auto rDst  = this->read_register();
-            auto value = this->read_word();
-            this->registers[rDst] = value;
+        case ADDC: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
             break;
         }
-        case ADDC:
-        {
-            throw std::domain_error { "addc is not yet implemented" };
-        }
-        case JMP:
-        {
-            this->read_byte();
-            this->pc = this->read_word();
+        case SUB: {
+            auto [ rDst, rSrc ] = this->read_register_pair();
+            this->flags.carry = __builtin_sub_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
-        case BRIF:
-        {
-            throw std::domain_error { "brif is not yet implemented" };
+        case SUBC: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
         }
-        case BRNIF:
-        {
-            throw std::domain_error { "brnif is not yet implemented" };
+        case INC: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
         }
-        case LOAD:
-        {
-            auto rDst = this->read_register();
+        case DEC: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case AND: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case OR: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case XOR: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case CMP: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case JMP: {
             auto addr = this->read_word();
-
-            auto low  = this->memory[addr + 0];
-            auto high = this->memory[addr + 1];
-
-            this->registers[rDst] = high << 8 | low;
+            this->pc = addr;
             break;
         }
-        case STORE:
-        {
-            auto rSrc  = this->read_register();
-            auto addr  = this->read_word();
-            auto value = this->registers[rSrc];
-
-            this->memory[addr + 0] = LOW_BYTE(value);
-            this->memory[addr + 1] = HIGH_BYTE(value);
+        case CALL: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case RET: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case RETI: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case BRC: {
+            auto addr = this->read_word();
+            if (this->flags.carry) {
+                this->pc = addr;
+            }
+            break;
+        }
+        case BRNC: {
+            auto addr = this->read_word();
+            if (!this->flags.carry) {
+                this->pc = addr;
+            }
+            break;
+        }
+        case BRZ: {
+            auto addr = this->read_word();
+            if (this->flags.zero) {
+                this->pc = addr;
+            }
+            break;
+        }
+        case BRNZ: {
+            auto addr = this->read_word();
+            if (!this->flags.zero) {
+                this->pc = addr;
+            }
+            break;
+        }
+        case NOP: {
+            break;
+        }
+        case STOP: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case SLEEP: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
+            break;
+        }
+        case BREAK: {
+            // TODO
+            throw std::domain_error { "Unimplemented instruction" };
             break;
         }
         default:
@@ -102,7 +188,7 @@ void Mcu::step() {
 }
 
 u8 Mcu::read_byte() {
-    return this->memory[this->pc++];
+    return this->program[this->pc++];
 }
 
 std::pair<u8, u8> Mcu::read_register_pair() {

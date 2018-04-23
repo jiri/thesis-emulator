@@ -8,14 +8,14 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     SECTION("Stepping increases PC") {
         mcu.load_program({ 0x00, 0x00 });
         mcu.step();
-        REQUIRE(mcu.pc == 2);
+        REQUIRE(mcu.pc == 1);
     }
 
     SECTION("Carry is set") {
         mcu.load_program({
-                0x02, 0x00, 0xFF, 0xFF, // movi R0, 0xFFFF
-                0x02, 0x01, 0x00, 0x01, // movi R1, 0x0001
-                0x10, 0x01,             // add R0, R1
+                0x31, 0x00, 0xFF, // ldi R0, $FF
+                0x31, 0x01, 0x01, // ldi R1, $01
+                0x10, 0x01,       // add R0, R1
         });
 
         mcu.step();
@@ -27,7 +27,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Zero is set") {
         mcu.load_program({
-                0x10, 0x00, 0x00, // add R0, R0
+                0x10, 0x00, // add R0, R0
         });
 
         mcu.step();
