@@ -6,17 +6,21 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     Mcu mcu;
 
     SECTION("Stepping increases PC") {
-        mcu.load_program({ 0x00, 0x00 });
+        mcu.compile_and_load(R"(
+            nop
+        )");
+
         mcu.step();
+
         REQUIRE(mcu.pc == 1);
     }
 
     SECTION("Add sets carry flag") {
-        mcu.load_program({
-                0x31, 0x00, 0xFF, // ldi R0, $FF
-                0x31, 0x01, 0x01, // ldi R1, $01
-                0x10, 0x01,       // add R0, R1
-        });
+        mcu.compile_and_load(R"(
+            ldi R0, $FF
+            ldi R1, $01
+            add R0, R1
+        )");
 
         mcu.steps(3);
 
@@ -24,9 +28,9 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Add sets zero flag") {
-        mcu.load_program({
-                0x10, 0x00, // add R0, R0
-        });
+        mcu.compile_and_load(R"(
+            add R0, R0
+        )");
 
         mcu.step();
 
@@ -34,16 +38,11 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sub sets carry flag") {
-        compile(R"~(
-            add R0, R1
-            sub R1, R0
-        )~");
-
-        mcu.load_program({
-                0x31, 0x00, 0x00, // ldi R0, $00
-                0x31, 0x01, 0x01, // ldi R1, $01
-                0x12, 0x01,       // sub R0, R1
-        });
+        mcu.compile_and_load(R"(
+            ldi R0, $00
+            ldi R1, $01
+            sub R0, R1
+        )");
 
         mcu.steps(3);
 
@@ -51,9 +50,9 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sub sets zero flag") {
-        mcu.load_program({
-                0x12, 0x00, // sub R0, R0
-        });
+        mcu.compile_and_load(R"(
+            sub R0, R0
+        )");
 
         mcu.step();
 
@@ -61,12 +60,12 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Inc works") {
-        mcu.load_program({
-                0x31, 0x00, 0x00, // ldi R0, $00
-                                  // loop:
-                0x14, 0x00,       //   inc R0
-                0x25, 0x00, 0x03, //   brnc loop
-        });
+        mcu.compile_and_load(R"(
+            ldi R0, $00
+            loop:
+                inc R0
+                brnc loop
+        )");
 
         mcu.steps(512);
 
@@ -75,12 +74,12 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Dec works") {
-        mcu.load_program({
-                0x31, 0x00, 0xff, // ldi R0, $FF
-                                  // loop:
-                0x15, 0x00,       //   dec R0
-                0x25, 0x00, 0x03, //   brnc loop
-        });
+        mcu.compile_and_load(R"(
+            ldi R0, $FF
+            loop:
+                dec R0
+                brnc loop
+        )");
 
         mcu.steps(511);
         REQUIRE(mcu.flags.zero);
