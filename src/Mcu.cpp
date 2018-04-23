@@ -91,13 +91,15 @@ void Mcu::step() {
             break;
         }
         case INC: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto rDst = this->read_register();
+            this->flags.carry = __builtin_add_overflow(this->registers[rDst], 1, &this->registers[rDst]);
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
         case DEC: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto rDst = this->read_register();
+            this->flags.carry = __builtin_sub_overflow(this->registers[rDst], 1, &this->registers[rDst]);
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
         case AND: {
@@ -186,8 +188,7 @@ void Mcu::step() {
             throw std::domain_error { "Unimplemented instruction" };
             break;
         }
-        default:
-        {
+        default: {
             throw std::domain_error { "Illegal opcode" };
         }
     }

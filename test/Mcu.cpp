@@ -59,4 +59,33 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
         REQUIRE(mcu.flags.zero);
     }
+
+    SECTION("Inc works") {
+        mcu.load_program({
+                0x31, 0x00, 0x00, // ldi R0, $00
+                                  // loop:
+                0x14, 0x00,       //   inc R0
+                0x25, 0x00, 0x03, //   brnc loop
+        });
+
+        mcu.steps(512);
+
+        REQUIRE(mcu.flags.carry);
+        REQUIRE(mcu.flags.zero);
+    }
+
+    SECTION("Dec works") {
+        mcu.load_program({
+                0x31, 0x00, 0xff, // ldi R0, $FF
+                                  // loop:
+                0x15, 0x00,       //   dec R0
+                0x25, 0x00, 0x03, //   brnc loop
+        });
+
+        mcu.steps(511);
+        REQUIRE(mcu.flags.zero);
+
+        mcu.step();
+        REQUIRE(mcu.flags.carry);
+    }
 }
