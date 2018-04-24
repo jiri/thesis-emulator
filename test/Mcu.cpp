@@ -221,4 +221,25 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(!mcu.flags.carry);
         REQUIRE(mcu.flags.zero);
     }
+
+    SECTION("Stack works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $EE
+            ldi R1, $FF
+            ldi R2, $C0
+
+            push R0
+            push R1
+            push R2
+            pop R0
+            pop R1
+            pop R2
+        )");
+
+        mcu.steps(9);
+
+        REQUIRE(mcu.registers[0] == 0xC0);
+        REQUIRE(mcu.registers[1] == 0xFF);
+        REQUIRE(mcu.registers[2] == 0xEE);
+    }
 }
