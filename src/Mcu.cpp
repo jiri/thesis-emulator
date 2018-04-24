@@ -152,18 +152,24 @@ void Mcu::step() {
             break;
         }
         case AND: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto [ rDst, rSrc ] = this->read_register_pair();
+            this->registers[rDst] = this->registers[rDst] & this->registers[rSrc];
+            this->flags.carry = false;
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
         case OR: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto [ rDst, rSrc ] = this->read_register_pair();
+            this->registers[rDst] = this->registers[rDst] | this->registers[rSrc];
+            this->flags.carry = false;
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
         case XOR: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto [ rDst, rSrc ] = this->read_register_pair();
+            this->registers[rDst] = this->registers[rDst] ^ this->registers[rSrc];
+            this->flags.carry = false;
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
         case CMP: {

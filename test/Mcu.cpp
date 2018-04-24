@@ -133,4 +133,56 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(mcu.flags.carry);
         REQUIRE(!mcu.flags.zero);
     }
+
+    SECTION("And works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $55 ; 0b01010101
+            ldi R1, $AA ; 0b10101010
+            and R0, R1
+        )");
+
+        mcu.steps(3);
+
+        REQUIRE(mcu.registers[0] == 0x00);
+        REQUIRE(!mcu.flags.carry);
+        REQUIRE(mcu.flags.zero);
+    }
+
+    SECTION("Or works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $55 ; 0b01010101
+            ldi R1, $AA ; 0b10101010
+            or R0, R1
+        )");
+
+        mcu.steps(3);
+
+        REQUIRE(mcu.registers[0] == 0xFF);
+        REQUIRE(!mcu.flags.carry);
+        REQUIRE(!mcu.flags.zero);
+    }
+
+    SECTION("Xor works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $55 ; 0b01010101
+            ldi R1, $AA ; 0b10101010
+            xor R0, R1
+
+            ldi R0, $FF ; 0b11111111
+            ldi R1, $AA ; 0b10101010
+            xor R0, R1
+        )");
+
+        mcu.steps(3);
+
+        REQUIRE(mcu.registers[0] == 0xFF);
+        REQUIRE(!mcu.flags.carry);
+        REQUIRE(!mcu.flags.zero);
+
+        mcu.steps(3);
+
+        REQUIRE(mcu.registers[0] == 0x55);
+        REQUIRE(!mcu.flags.carry);
+        REQUIRE(!mcu.flags.zero);
+    }
 }
