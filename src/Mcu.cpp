@@ -39,7 +39,11 @@ void Mcu::compile_and_load(const std::string &source) {
     std::ofstream(filename) << source;
 
     /* Compile the source */
-    std::system(command.c_str());
+    auto ret = std::system(command.c_str());
+
+    if (ret) {
+        throw std::runtime_error { "Assembly error" };
+    }
 
     /* Read whole output file */
     std::ifstream ifs(filename + ".bin", std::ios_base::binary | std::ios_base::ate);
