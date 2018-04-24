@@ -87,4 +87,50 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         mcu.step();
         REQUIRE(mcu.flags.carry);
     }
+
+    SECTION("Adc works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $FF
+            ldi R1, $FF
+            ldi R2, $01
+            ldi R3, $00
+            add R0, R2
+            addc R1, R3
+        )");
+
+        mcu.steps(5);
+
+        REQUIRE(mcu.registers[0] == 0x00);
+        REQUIRE(mcu.flags.carry);
+        REQUIRE(mcu.flags.zero);
+
+        mcu.steps(1);
+
+        REQUIRE(mcu.registers[1] == 0x00);
+        REQUIRE(mcu.flags.carry);
+        REQUIRE(mcu.flags.zero);
+    }
+
+    SECTION("Subc works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $00
+            ldi R1, $00
+            ldi R2, $01
+            ldi R3, $00
+            sub R0, R2
+            subc R1, R3
+        )");
+
+        mcu.steps(5);
+
+        REQUIRE(mcu.registers[0] == 0xFF);
+        REQUIRE(mcu.flags.carry);
+        REQUIRE(!mcu.flags.zero);
+
+        mcu.steps(1);
+
+        REQUIRE(mcu.registers[1] == 0xFF);
+        REQUIRE(mcu.flags.carry);
+        REQUIRE(!mcu.flags.zero);
+    }
 }

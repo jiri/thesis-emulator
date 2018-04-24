@@ -106,8 +106,17 @@ void Mcu::step() {
             break;
         }
         case ADDC: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto [ rDst, rSrc ] = this->read_register_pair();
+            bool carry1 = false;
+            bool carry2 = false;
+
+            carry1 = __builtin_add_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);
+            if (flags.carry) {
+                carry2 = __builtin_add_overflow(this->registers[rDst], 1, &this->registers[rDst]);
+            }
+
+            this->flags.carry = carry1 || carry2;
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
         case SUB: {
@@ -117,8 +126,17 @@ void Mcu::step() {
             break;
         }
         case SUBC: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto [ rDst, rSrc ] = this->read_register_pair();
+            bool carry1 = false;
+            bool carry2 = false;
+
+            carry1 = __builtin_sub_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);
+            if (flags.carry) {
+                carry2 = __builtin_sub_overflow(this->registers[rDst], 1, &this->registers[rDst]);
+            }
+
+            this->flags.carry = carry1 || carry2;
+            this->flags.zero = this->registers[rDst] == 0;
             break;
         }
         case INC: {
