@@ -202,4 +202,23 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(mcu.pc == 9);
         REQUIRE(mcu.registers[0] == 0x1A);
     }
+
+    SECTION("Cmp works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $10
+            ldi R1, $21
+            cmp R0, R1
+            cmp R1, R1
+        )");
+
+        mcu.steps(3);
+
+        REQUIRE(mcu.flags.carry);
+        REQUIRE(!mcu.flags.zero);
+
+        mcu.steps(1);
+
+        REQUIRE(!mcu.flags.carry);
+        REQUIRE(mcu.flags.zero);
+    }
 }

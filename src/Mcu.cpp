@@ -182,8 +182,10 @@ void Mcu::step() {
             break;
         }
         case CMP: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto [ r0, r1 ] = this->read_register_pair();
+            u8 result = 0;
+            this->flags.carry = __builtin_sub_overflow(this->registers[r0], this->registers[r1], &result);
+            this->flags.zero = result == 0;
             break;
         }
         case JMP: {
