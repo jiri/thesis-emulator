@@ -10,11 +10,16 @@
 
 #include <opcodes.hpp>
 
-#define HIGH_NIBBLE(X) ((X) & 0xF0u)
-#define LOW_NIBBLE(X) ((X) & 0x0Fu)
-
 #define HIGH_BYTE(X) static_cast<uint8_t>(((X) & 0xFF00u) >> 8u)
 #define LOW_BYTE(X) static_cast<uint8_t>(((X) & 0x00FFu) >> 0u)
+
+constexpr inline u8 high_nibble(u8 x) {
+    return static_cast<u8>((x & 0xF0u) >> 4u);
+}
+
+constexpr inline u8 low_nibble(u8 x) {
+    return static_cast<u8>((x & 0x0Fu) >> 0u);
+}
 
 void Mcu::compile_and_load(const std::string &source) {
     std::string filename = std::tmpnam(nullptr);
@@ -226,7 +231,7 @@ u8 Mcu::read_byte() {
 
 std::pair<u8, u8> Mcu::read_register_pair() {
     u8 byte = read_byte();
-    return { HIGH_NIBBLE(byte), LOW_NIBBLE(byte) };
+    return { high_nibble(byte), low_nibble(byte) };
 }
 
 u8 Mcu::read_register() {
@@ -237,5 +242,5 @@ u16 Mcu::read_word() {
     u8 high = read_byte();
     u8 low  = read_byte();
 
-    return static_cast<u16>(high << 8 | low);
+    return static_cast<u16>(high << 8u | low);
 }
