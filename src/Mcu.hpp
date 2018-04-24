@@ -25,6 +25,12 @@ public:
     } flags;
 
 private:
+    void push_u8(u8 value);
+    void push_u16(u16 value);
+
+    u8 pop_u8();
+    u16 pop_u16();
+
     u8 read_byte();
     u8 read_register();
     std::pair<u8, u8> read_register_pair();

@@ -94,12 +94,12 @@ void Mcu::step() {
         }
         case PUSH: {
             auto rSrc = this->read_register();
-            this->memory[sp--] = this->registers[rSrc];
+            this->push_u8(this->registers[rSrc]);
             break;
         }
         case POP: {
             auto rDst = this->read_register();
-            this->registers[rDst] = this->memory[++sp];
+            this->registers[rDst] = this->pop_u8();
             break;
         }
         case LPM: {
@@ -256,6 +256,25 @@ void Mcu::step() {
             throw std::domain_error { "Illegal opcode" };
         }
     }
+}
+
+void Mcu::push_u8(u8 value) {
+    this->memory[sp--] = value;
+}
+
+void Mcu::push_u16(u16 value) {
+    this->push_u8(high_byte(value));
+    this->push_u8(low_byte(value));
+}
+
+u8 Mcu::pop_u8() {
+    return this->memory[++sp];
+}
+
+u16 Mcu::pop_u16() {
+    auto low_byte = this->pop_u8();
+    auto high_byte = this->pop_u8();
+    return (high_byte << 8u) | low_byte;
 }
 
 u8 Mcu::read_byte() {
