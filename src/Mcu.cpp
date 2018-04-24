@@ -192,13 +192,13 @@ void Mcu::step() {
             break;
         }
         case CALL: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            auto addr = this->read_word();
+            this->push_u16(this->pc);
+            this->pc = addr;
             break;
         }
         case RET: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            this->pc = this->pop_u16();
             break;
         }
         case RETI: {

@@ -185,4 +185,21 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(!mcu.flags.carry);
         REQUIRE(!mcu.flags.zero);
     }
+
+    SECTION("Call / Ret works") {
+        mcu.compile_and_load(R"(
+            ldi R0, $10
+            ldi R1, $0A
+            call function
+
+            function:
+                add R0, R1
+                ret
+        )");
+
+        mcu.steps(5);
+
+        REQUIRE(mcu.pc == 9);
+        REQUIRE(mcu.registers[0] == 0x1A);
+    }
 }
