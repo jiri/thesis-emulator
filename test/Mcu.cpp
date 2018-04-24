@@ -243,6 +243,29 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(mcu.registers[2] == 0xEE);
     }
 
+    SECTION("Interrupts work") {
+        mcu.interrupts.enabled = true;
+
+        mcu.compile_and_load(R"(
+            .org $0 ; Reset vector
+                jmp $100
+
+            .org $10 ; Button press vector
+                ldi R1, $FF
+                reti
+
+            .org $100
+                ldi R1, $AA
+                mov R0, R1
+        )");
+
+        mcu.steps(2);
+        mcu.interrupts.button = true;
+        mcu.steps(3);
+
+        REQUIRE(mcu.registers[0] == 0xFF);
+    }
+
     SECTION("Stop works") {
         mcu.interrupts.enabled = true;
 

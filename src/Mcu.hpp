@@ -24,6 +24,12 @@ public:
         bool zero = false;
     } flags;
 
+    struct {
+        bool enabled = false;
+        bool button = false;
+        bool vblank = false;
+    } interrupts;
+
     bool stopped = false;
     bool sleeping = false;
 

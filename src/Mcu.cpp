@@ -64,9 +64,25 @@ void Mcu::steps(u16 steps) {
 }
 
 void Mcu::step() {
-    // TODO: Interrupts
     if (this->stopped) {
         return;
+    }
+
+    if (this->interrupts.enabled) {
+        if (this->interrupts.button) {
+            this->sleeping = false;
+            this->interrupts.button = false;
+            this->interrupts.enabled = false;
+            this->push_u16(this->pc);
+            this->pc = 0x10;
+        }
+        if (this->interrupts.vblank) {
+            this->sleeping = false;
+            this->interrupts.vblank = false;
+            this->interrupts.enabled = false;
+            this->push_u16(this->pc);
+            this->pc = 0x20;
+        }
     }
 
     if (this->sleeping) {
@@ -211,8 +227,8 @@ void Mcu::step() {
             break;
         }
         case RETI: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            this->interrupts.enabled = true;
+            this->pc = this->pop_u16();
             break;
         }
         case BRC: {
