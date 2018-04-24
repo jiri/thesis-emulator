@@ -24,6 +24,9 @@ public:
         bool zero = false;
     } flags;
 
+    bool stopped = false;
+    bool sleeping = false;
+
 private:
     void push_u8(u8 value);
     void push_u16(u16 value);

@@ -242,4 +242,48 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(mcu.registers[1] == 0xFF);
         REQUIRE(mcu.registers[2] == 0xEE);
     }
+
+    SECTION("Stop works") {
+        mcu.interrupts.enabled = true;
+
+        mcu.compile_and_load(R"(
+            ldi R0, $FF
+            stop
+        )");
+
+        mcu.steps(2);
+
+        REQUIRE(mcu.pc == 4);
+        REQUIRE(mcu.registers[0] == 0xFF);
+
+        mcu.steps(8);
+
+        REQUIRE(mcu.pc == 4);
+        REQUIRE(mcu.registers[0] == 0xFF);
+    }
+
+    SECTION("Sleep works") {
+        mcu.interrupts.enabled = true;
+
+        mcu.compile_and_load(R"(
+            .org $0 ; Reset vector
+                jmp $100
+
+            .org $10 ; Button press vector
+                ldi R0, $FF
+                reti
+
+            .org $100
+                sleep
+        )");
+
+        mcu.steps(2);
+        REQUIRE(mcu.sleeping);
+        mcu.steps(8);
+        REQUIRE(mcu.sleeping);
+        mcu.interrupts.button = true;
+        mcu.steps(2);
+        REQUIRE(!mcu.sleeping);
+        REQUIRE(mcu.registers[0] == 0xFF);
+    }
 }

@@ -65,6 +65,13 @@ void Mcu::steps(u16 steps) {
 
 void Mcu::step() {
     // TODO: Interrupts
+    if (this->stopped) {
+        return;
+    }
+
+    if (this->sleeping) {
+        return;
+    }
 
     u8 opcode = this->read_byte();
 
@@ -240,18 +247,14 @@ void Mcu::step() {
             break;
         }
         case STOP: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            this->stopped = true;
             break;
         }
         case SLEEP: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
+            this->sleeping = true;
             break;
         }
         case BREAK: {
-            // TODO
-            throw std::domain_error { "Unimplemented instruction" };
             break;
         }
         default: {
