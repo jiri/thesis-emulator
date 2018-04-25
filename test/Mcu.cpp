@@ -250,7 +250,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
             .org $0 ; Reset vector
                 jmp $100
 
-            .org $10 ; Button press vector
+            .org $20 ; Button press vector
                 ldi R1, $FF
                 reti
 
@@ -292,7 +292,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
             .org $0 ; Reset vector
                 jmp $100
 
-            .org $10 ; Button press vector
+            .org $20 ; Button press vector
                 ldi R0, $FF
                 reti
 
