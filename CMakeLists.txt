@@ -13,6 +13,7 @@ set(SOURCE_FILES
         src/Mcu.hpp
         src/Mcu.cpp
         src/opcodes.hpp
+        src/interrupts.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})

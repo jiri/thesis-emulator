@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 
 #include <opcodes.hpp>
+#include <interrupts.hpp>
 
 constexpr inline u8 high_byte(u16 x) {
     return static_cast<u8>((x & 0xFF00u) >> 8u);
@@ -74,21 +75,21 @@ void Mcu::step() {
             this->interrupts.vblank = false;
             this->interrupts.enabled = false;
             this->push_u16(this->pc);
-            this->pc = 0x10;
+            this->pc = VBLANK_VECTOR;
         }
         if (this->interrupts.button) {
             this->sleeping = false;
             this->interrupts.button = false;
             this->interrupts.enabled = false;
             this->push_u16(this->pc);
-            this->pc = 0x20;
+            this->pc = BUTTON_VECTOR;
         }
         if (this->interrupts.keyboard) {
             this->sleeping = false;
             this->interrupts.keyboard = false;
             this->interrupts.enabled = false;
             this->push_u16(this->pc);
-            this->pc = 0x30;
+            this->pc = KEYBOARD_VECTOR;
         }
     }
 
