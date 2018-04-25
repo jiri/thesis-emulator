@@ -69,19 +69,26 @@ void Mcu::step() {
     }
 
     if (this->interrupts.enabled) {
-        if (this->interrupts.button) {
-            this->sleeping = false;
-            this->interrupts.button = false;
-            this->interrupts.enabled = false;
-            this->push_u16(this->pc);
-            this->pc = 0x10;
-        }
         if (this->interrupts.vblank) {
             this->sleeping = false;
             this->interrupts.vblank = false;
             this->interrupts.enabled = false;
             this->push_u16(this->pc);
+            this->pc = 0x10;
+        }
+        if (this->interrupts.button) {
+            this->sleeping = false;
+            this->interrupts.button = false;
+            this->interrupts.enabled = false;
+            this->push_u16(this->pc);
             this->pc = 0x20;
+        }
+        if (this->interrupts.keyboard) {
+            this->sleeping = false;
+            this->interrupts.keyboard = false;
+            this->interrupts.enabled = false;
+            this->push_u16(this->pc);
+            this->pc = 0x30;
         }
     }
 

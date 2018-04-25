@@ -26,8 +26,9 @@ public:
 
     struct {
         bool enabled = false;
-        bool button = false;
         bool vblank = false;
+        bool button = false;
+        bool keyboard = false;
     } interrupts;
 
     bool stopped = false;
