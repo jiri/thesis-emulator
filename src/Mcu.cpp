@@ -92,63 +92,18 @@ void Mcu::step() {
     u8 opcode = this->read_byte();
 
     switch (opcode) {
-        case MOV: {
-            auto [ rDst, rSrc ] = this->read_register_pair();
-            this->registers[rDst] = this->registers[rSrc];
+        case NOP: {
             break;
         }
-        case LDI: {
-            auto rDst = this->read_register();
-            auto value = this->read_byte();
-            this->registers[rDst] = value;
+        case STOP: {
+            this->stopped = true;
             break;
         }
-        case LD: {
-            auto rDst = this->read_register();
-            auto addr = this->read_word();
-            this->registers[rDst] = this->memory[addr];
+        case SLEEP: {
+            this->sleeping = true;
             break;
         }
-        case ST: {
-            auto rDst = this->read_register();
-            auto addr = this->read_word();
-            this->memory[addr] = this->registers[rDst];
-            break;
-        }
-        case PUSH: {
-            auto rSrc = this->read_register();
-            this->push_u8(this->registers[rSrc]);
-            break;
-        }
-        case POP: {
-            auto rDst = this->read_register();
-            this->registers[rDst] = this->pop_u8();
-            break;
-        }
-        case LPM: {
-            auto rDst = this->read_register();
-            auto addr = this->read_word();
-            this->registers[rDst] = this->program[addr];
-            break;
-        }
-        case LDD: {
-            auto rDst = this->read_register();
-            auto [ rHigh, rLow ] = this->read_register_pair();
-
-            auto high = this->registers[rHigh];
-            auto low = this->registers[rLow];
-
-            this->registers[rDst] = this->memory[high << 8u | low];
-            break;
-        }
-        case STD: {
-            auto rSrc = this->read_register();
-            auto [ rHigh, rLow ] = this->read_register_pair();
-
-            auto high = this->registers[rHigh];
-            auto low = this->registers[rLow];
-
-            this->memory[high << 8u | low] = this->registers[rSrc];
+        case BREAK: {
             break;
         }
         case ADD: {
@@ -279,18 +234,63 @@ void Mcu::step() {
             }
             break;
         }
-        case NOP: {
+        case MOV: {
+            auto [ rDst, rSrc ] = this->read_register_pair();
+            this->registers[rDst] = this->registers[rSrc];
             break;
         }
-        case STOP: {
-            this->stopped = true;
+        case LDI: {
+            auto rDst = this->read_register();
+            auto value = this->read_byte();
+            this->registers[rDst] = value;
             break;
         }
-        case SLEEP: {
-            this->sleeping = true;
+        case LD: {
+            auto rDst = this->read_register();
+            auto addr = this->read_word();
+            this->registers[rDst] = this->memory[addr];
             break;
         }
-        case BREAK: {
+        case ST: {
+            auto rDst = this->read_register();
+            auto addr = this->read_word();
+            this->memory[addr] = this->registers[rDst];
+            break;
+        }
+        case PUSH: {
+            auto rSrc = this->read_register();
+            this->push_u8(this->registers[rSrc]);
+            break;
+        }
+        case POP: {
+            auto rDst = this->read_register();
+            this->registers[rDst] = this->pop_u8();
+            break;
+        }
+        case LPM: {
+            auto rDst = this->read_register();
+            auto addr = this->read_word();
+            this->registers[rDst] = this->program[addr];
+            break;
+        }
+        case LDD: {
+            auto rDst = this->read_register();
+            auto [ rHigh, rLow ] = this->read_register_pair();
+
+            auto high = this->registers[rHigh];
+            auto low = this->registers[rLow];
+
+            this->registers[rDst] = this->memory[high << 8u | low];
+            break;
+        }
+        case STD: {
+            auto rSrc = this->read_register();
+            auto [ rHigh, rLow ] = this->read_register_pair();
+
+            auto high = this->registers[rHigh];
+            auto low = this->registers[rLow];
+
+            this->memory[high << 8u | low] = this->registers[rSrc];
             break;
         }
         default: {
