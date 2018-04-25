@@ -4,7 +4,7 @@ project(emulator)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_compile_options(-include ${CMAKE_CURRENT_SOURCE_DIR}/common/typedefs.hpp)
+add_compile_options(-include${CMAKE_CURRENT_SOURCE_DIR}/common/typedefs.hpp)
 
 link_libraries(fmt)
 
@@ -16,7 +16,7 @@ set(SOURCE_FILES
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE src/)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC src/)
 
 # Tests
 set(TEST_FILES
