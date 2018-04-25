@@ -11,6 +11,10 @@ public:
     void steps(u16 steps);
     void step();
 
+    void vblank_interrupt();
+    void button_interrupt(u8 button_state);
+    void keyboard_interrupt(u8 character);
+
     u16 pc = 0;
     u16 sp = 0xFFFF;
 

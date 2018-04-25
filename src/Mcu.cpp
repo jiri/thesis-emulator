@@ -306,6 +306,20 @@ void Mcu::step() {
     }
 }
 
+void Mcu::vblank_interrupt() {
+    this->interrupts.vblank = true;
+}
+
+void Mcu::button_interrupt(u8 button_state) {
+    this->interrupts.button = true;
+    this->io_memory[0x01] = button_state;
+}
+
+void Mcu::keyboard_interrupt(u8 character) {
+    this->interrupts.keyboard = true;
+    this->io_memory[0x02] = character;
+}
+
 void Mcu::push_u8(u8 value) {
     this->memory[sp--] = value;
 }
