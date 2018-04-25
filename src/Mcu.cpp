@@ -69,26 +69,21 @@ void Mcu::step() {
         return;
     }
 
-    if (this->interrupts.enabled) {
-        if (this->interrupts.vblank) {
-            this->sleeping = false;
-            this->interrupts.vblank = false;
-            this->interrupts.enabled = false;
-            this->push_u16(this->pc);
+    if (this->io_memory[INTERRUPTS_ENABLED] == 0xFF && this->io_memory[INTERRUPT_OCCURED] != 0x00) {
+        this->sleeping = false;
+        this->disable_interrupts();
+        this->push_u16(this->pc);
+
+        if (this->io_memory[INTERRUPT_OCCURED] & VBLANK_INTERRUPT) {
+            this->io_memory[INTERRUPT_OCCURED] &= ~VBLANK_INTERRUPT;
             this->pc = VBLANK_VECTOR;
         }
-        if (this->interrupts.button) {
-            this->sleeping = false;
-            this->interrupts.button = false;
-            this->interrupts.enabled = false;
-            this->push_u16(this->pc);
+        else if (this->io_memory[INTERRUPT_OCCURED] & BUTTON_INTERRUPT) {
+            this->io_memory[INTERRUPT_OCCURED] &= ~BUTTON_INTERRUPT;
             this->pc = BUTTON_VECTOR;
         }
-        if (this->interrupts.keyboard) {
-            this->sleeping = false;
-            this->interrupts.keyboard = false;
-            this->interrupts.enabled = false;
-            this->push_u16(this->pc);
+        else if (this->io_memory[INTERRUPT_OCCURED] & KEYBOARD_INTERRUPT) {
+            this->io_memory[INTERRUPT_OCCURED] &= ~KEYBOARD_INTERRUPT;
             this->pc = KEYBOARD_VECTOR;
         }
     }
@@ -210,7 +205,7 @@ void Mcu::step() {
             break;
         }
         case RETI: {
-            this->interrupts.enabled = true;
+            this->enable_interrupts();
             this->pc = this->pop_u16();
             break;
         }
@@ -319,18 +314,26 @@ void Mcu::step() {
     }
 }
 
+void Mcu::enable_interrupts() {
+    this->io_memory[INTERRUPTS_ENABLED] = 0xFF;
+}
+
+void Mcu::disable_interrupts() {
+    this->io_memory[INTERRUPTS_ENABLED] = 0x00;
+}
+
 void Mcu::vblank_interrupt() {
-    this->interrupts.vblank = true;
+    this->io_memory[INTERRUPT_OCCURED] |= VBLANK_INTERRUPT;
 }
 
 void Mcu::button_interrupt(u8 button_state) {
-    this->interrupts.button = true;
-    this->io_memory[0x01] = button_state;
+    this->io_memory[INTERRUPT_OCCURED] |= BUTTON_INTERRUPT;
+    this->io_memory[BUTTON_STATE] = button_state;
 }
 
 void Mcu::keyboard_interrupt(u8 character) {
-    this->interrupts.keyboard = true;
-    this->io_memory[0x02] = character;
+    this->io_memory[INTERRUPT_OCCURED] |= KEYBOARD_INTERRUPT;
+    this->io_memory[KEYBOARD_STATE] = character;
 }
 
 void Mcu::push_u8(u8 value) {

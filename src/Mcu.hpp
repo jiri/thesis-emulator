@@ -11,6 +11,9 @@ public:
     void steps(u16 steps);
     void step();
 
+    void enable_interrupts();
+    void disable_interrupts();
+
     void vblank_interrupt();
     void button_interrupt(u8 button_state);
     void keyboard_interrupt(u8 character);
@@ -27,13 +30,6 @@ public:
         bool carry = false;
         bool zero = false;
     } flags;
-
-    struct {
-        bool enabled = false;
-        bool vblank = false;
-        bool button = false;
-        bool keyboard = false;
-    } interrupts;
 
     bool stopped = false;
     bool sleeping = false;

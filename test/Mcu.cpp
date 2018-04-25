@@ -244,7 +244,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Interrupts work") {
-        mcu.interrupts.enabled = true;
+        mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
             .org $0 ; Reset vector
@@ -260,14 +260,14 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         )");
 
         mcu.steps(2);
-        mcu.interrupts.button = true;
+        mcu.button_interrupt(0x00);
         mcu.steps(3);
 
         REQUIRE(mcu.registers[0] == 0xFF);
     }
 
     SECTION("Stop works") {
-        mcu.interrupts.enabled = true;
+        mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
             ldi R0, $FF
@@ -286,7 +286,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sleep works") {
-        mcu.interrupts.enabled = true;
+        mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
             .org $0 ; Reset vector
@@ -304,14 +304,14 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(mcu.sleeping);
         mcu.steps(8);
         REQUIRE(mcu.sleeping);
-        mcu.interrupts.button = true;
+        mcu.button_interrupt(0x00);
         mcu.steps(2);
         REQUIRE(!mcu.sleeping);
         REQUIRE(mcu.registers[0] == 0xFF);
     }
 
     SECTION("Ldd / Std works") {
-        mcu.interrupts.enabled = true;
+        mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
             ldi R0, $01
