@@ -7,6 +7,8 @@
 #define PUSH  0x34
 #define POP   0x35
 #define LPM   0x36
+#define LDD   0x37
+#define STD   0x38
 #define ADD   0x10
 #define ADDC  0x11
 #define SUB   0x12

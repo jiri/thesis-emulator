@@ -309,4 +309,26 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(!mcu.sleeping);
         REQUIRE(mcu.registers[0] == 0xFF);
     }
+
+    SECTION("Ldd / Std works") {
+        mcu.interrupts.enabled = true;
+
+        mcu.compile_and_load(R"(
+            ldi R0, $01
+            ldi R1, $02
+
+            ldi R3, $FE
+            ldi R4, $EF
+
+            std R3, [R0:R1]
+            std R4, [R1:R0]
+
+            ldd R5, [R0:R1]
+            ldd R6, [R1:R0]
+        )");
+
+        mcu.steps(8);
+        REQUIRE(mcu.registers[5] == 0xFE);
+        REQUIRE(mcu.registers[6] == 0xEF);
+    }
 }

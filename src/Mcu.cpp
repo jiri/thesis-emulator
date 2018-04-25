@@ -131,6 +131,26 @@ void Mcu::step() {
             this->registers[rDst] = this->program[addr];
             break;
         }
+        case LDD: {
+            auto rDst = this->read_register();
+            auto [ rHigh, rLow ] = this->read_register_pair();
+
+            auto high = this->registers[rHigh];
+            auto low = this->registers[rLow];
+
+            this->registers[rDst] = this->memory[high << 8u | low];
+            break;
+        }
+        case STD: {
+            auto rSrc = this->read_register();
+            auto [ rHigh, rLow ] = this->read_register_pair();
+
+            auto high = this->registers[rHigh];
+            auto low = this->registers[rLow];
+
+            this->memory[high << 8u | low] = this->registers[rSrc];
+            break;
+        }
         case ADD: {
             auto [ rDst, rSrc ] = this->read_register_pair();
             this->flags.carry = __builtin_add_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);
