@@ -301,6 +301,18 @@ void Mcu::step() {
             this->memory[high << 8u | low] = this->registers[rSrc];
             break;
         }
+        case IN: {
+            auto rDst = this->read_register();
+            auto addr = this->read_byte();
+            this->registers[rDst] = this->io_memory[addr];
+            break;
+        }
+        case OUT: {
+            auto rSrc = this->read_register();
+            auto addr = this->read_byte();
+            this->io_memory[addr] = this->registers[rSrc];
+            break;
+        }
         default: {
             throw std::domain_error { "Illegal opcode" };
         }

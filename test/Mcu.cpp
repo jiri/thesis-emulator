@@ -331,4 +331,27 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(mcu.registers[5] == 0xFE);
         REQUIRE(mcu.registers[6] == 0xEF);
     }
+
+    SECTION("In / Out works") {
+        mcu.compile_and_load(R"(
+            .org $00
+              jmp $100
+
+            .org $20 ; Button press
+              in R0, $02 ; R0 <- Pressed buttons
+              reti
+
+            .org $100
+              ldi R0, $FF
+              out R0, $00 ; Enable interrupts
+
+              nop
+        )");
+
+        mcu.steps(2);
+        mcu.button_interrupt(0xAB);
+        mcu.steps(3);
+
+        REQUIRE(mcu.registers[0] == 0xAB);
+    }
 }
