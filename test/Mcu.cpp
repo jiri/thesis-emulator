@@ -17,8 +17,8 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Add sets carry flag") {
         mcu.compile_and_load(R"(
-            ldi R0, $FF
-            ldi R1, $01
+            ldi R0, 0xFF
+            ldi R1, 0x01
             add R0, R1
         )");
 
@@ -39,8 +39,8 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Sub sets carry flag") {
         mcu.compile_and_load(R"(
-            ldi R0, $00
-            ldi R1, $01
+            ldi R0, 0x00
+            ldi R1, 0x01
             sub R0, R1
         )");
 
@@ -61,7 +61,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Inc works") {
         mcu.compile_and_load(R"(
-            ldi R0, $00
+            ldi R0, 0x00
             loop:
                 inc R0
                 brnc loop
@@ -75,7 +75,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Dec works") {
         mcu.compile_and_load(R"(
-            ldi R0, $FF
+            ldi R0, 0xFF
             loop:
                 dec R0
                 brnc loop
@@ -90,10 +90,10 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Adc works") {
         mcu.compile_and_load(R"(
-            ldi R0, $FF
-            ldi R1, $FF
-            ldi R2, $01
-            ldi R3, $00
+            ldi R0, 0xFF
+            ldi R1, 0xFF
+            ldi R2, 0x01
+            ldi R3, 0x00
             add R0, R2
             addc R1, R3
         )");
@@ -113,10 +113,10 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Subc works") {
         mcu.compile_and_load(R"(
-            ldi R0, $00
-            ldi R1, $00
-            ldi R2, $01
-            ldi R3, $00
+            ldi R0, 0x00
+            ldi R1, 0x00
+            ldi R2, 0x01
+            ldi R3, 0x00
             sub R0, R2
             subc R1, R3
         )");
@@ -136,8 +136,8 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("And works") {
         mcu.compile_and_load(R"(
-            ldi R0, $55 ; 0b01010101
-            ldi R1, $AA ; 0b10101010
+            ldi R0, 0x55 ; 0b01010101
+            ldi R1, 0xAA ; 0b10101010
             and R0, R1
         )");
 
@@ -150,8 +150,8 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Or works") {
         mcu.compile_and_load(R"(
-            ldi R0, $55 ; 0b01010101
-            ldi R1, $AA ; 0b10101010
+            ldi R0, 0x55 ; 0b01010101
+            ldi R1, 0xAA ; 0b10101010
             or R0, R1
         )");
 
@@ -164,12 +164,12 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Xor works") {
         mcu.compile_and_load(R"(
-            ldi R0, $55 ; 0b01010101
-            ldi R1, $AA ; 0b10101010
+            ldi R0, 0x55 ; 0b01010101
+            ldi R1, 0xAA ; 0b10101010
             xor R0, R1
 
-            ldi R0, $FF ; 0b11111111
-            ldi R1, $AA ; 0b10101010
+            ldi R0, 0xFF ; 0b11111111
+            ldi R1, 0xAA ; 0b10101010
             xor R0, R1
         )");
 
@@ -188,8 +188,8 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Call / Ret works") {
         mcu.compile_and_load(R"(
-            ldi R0, $10
-            ldi R1, $0A
+            ldi R0, 0x10
+            ldi R1, 0x0A
             call function
 
             function:
@@ -205,8 +205,8 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Cmp works") {
         mcu.compile_and_load(R"(
-            ldi R0, $10
-            ldi R1, $21
+            ldi R0, 0x10
+            ldi R1, 0x21
             cmp R0, R1
             cmp R1, R1
         )");
@@ -224,9 +224,9 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("Stack works") {
         mcu.compile_and_load(R"(
-            ldi R0, $EE
-            ldi R1, $FF
-            ldi R2, $C0
+            ldi R0, 0xEE
+            ldi R1, 0xFF
+            ldi R2, 0xC0
 
             push R0
             push R1
@@ -247,15 +247,15 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
-            .org $0 ; Reset vector
-                jmp $100
+            .org 0x0 ; Reset vector
+                jmp 0x100
 
-            .org $20 ; Button press vector
-                ldi R1, $FF
+            .org 0x20 ; Button press vector
+                in R1, 0x02
                 reti
 
-            .org $100
-                ldi R1, $AA
+            .org 0x100
+                ldi R1, 0xAA
                 mov R0, R1
         )");
 
@@ -270,7 +270,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
-            ldi R0, $FF
+            ldi R0, 0xFF
             stop
         )");
 
@@ -289,14 +289,14 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
-            .org $0 ; Reset vector
-                jmp $100
+            .org 0x0 ; Reset vector
+                jmp 0x100
 
-            .org $20 ; Button press vector
-                ldi R0, $FF
+            .org 0x20 ; Button press vector
+                ldi R0, 0xFF
                 reti
 
-            .org $100
+            .org 0x100
                 sleep
         )");
 
@@ -314,11 +314,11 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         mcu.enable_interrupts();
 
         mcu.compile_and_load(R"(
-            ldi R0, $01
-            ldi R1, $02
+            ldi R0, 0x01
+            ldi R1, 0x02
 
-            ldi R3, $FE
-            ldi R4, $EF
+            ldi R3, 0xFE
+            ldi R4, 0xEF
 
             std R3, [R0:R1]
             std R4, [R1:R0]
@@ -334,17 +334,17 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
     SECTION("In / Out works") {
         mcu.compile_and_load(R"(
-            .org $00
-              jmp $100
+            .org 0x00
+              jmp 0x100
 
-            .org $20 ; Button press
-              in R0, $02 ; R0 <- Pressed buttons
+            .org 0x20 ; Button press
+              in R0, 0x02 ; R0 <- Pressed buttons
               reti
 
-            .org $100
               ldi R0, $FF
               out R0, $00 ; Enable interrupts
 
+            .org 0x100
               nop
         )");
 
