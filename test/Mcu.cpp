@@ -5,6 +5,10 @@
 TEST_CASE("Mcu works", "[mcu]" ) {
     Mcu mcu;
 
+    mcu.io_handlers[0x02] = IoHandler {
+        .get = []() { return 0xAB; },
+    };
+
     SECTION("Stepping increases PC") {
         mcu.compile_and_load(R"(
             nop
@@ -244,7 +248,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Interrupts work") {
-        mcu.enable_interrupts();
+        mcu.interrupts.enabled = true;
 
         mcu.compile_and_load(R"(
             .org 0x0 ; Reset vector
@@ -260,14 +264,14 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         )");
 
         mcu.steps(2);
-        mcu.button_interrupt(0x00);
+        mcu.interrupts.button = true;
         mcu.steps(3);
 
-        REQUIRE(mcu.registers[0] == 0xFF);
+        REQUIRE(mcu.registers[0] == 0xAB);
     }
 
     SECTION("Stop works") {
-        mcu.enable_interrupts();
+        mcu.interrupts.enabled = true;
 
         mcu.compile_and_load(R"(
             ldi R0, 0xFF
@@ -286,7 +290,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sleep works") {
-        mcu.enable_interrupts();
+        mcu.interrupts.enabled = true;
 
         mcu.compile_and_load(R"(
             .org 0x0 ; Reset vector
@@ -304,14 +308,14 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(mcu.sleeping);
         mcu.steps(8);
         REQUIRE(mcu.sleeping);
-        mcu.button_interrupt(0x00);
+        mcu.interrupts.button = true;
         mcu.steps(2);
         REQUIRE(!mcu.sleeping);
         REQUIRE(mcu.registers[0] == 0xFF);
     }
 
     SECTION("Ldd / Std works") {
-        mcu.enable_interrupts();
+        mcu.interrupts.enabled = true;
 
         mcu.compile_and_load(R"(
             ldi R0, 0x01
@@ -333,6 +337,8 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("In / Out works") {
+        mcu.interrupts.enabled = true;
+
         mcu.compile_and_load(R"(
             .org 0x00
               jmp 0x100
@@ -341,15 +347,13 @@ TEST_CASE("Mcu works", "[mcu]" ) {
               in R0, 0x02 ; R0 <- Pressed buttons
               reti
 
-              ldi R0, $FF
-              out R0, $00 ; Enable interrupts
-
             .org 0x100
+              nop
               nop
         )");
 
         mcu.steps(2);
-        mcu.button_interrupt(0xAB);
+        mcu.interrupts.button = true;
         mcu.steps(3);
 
         REQUIRE(mcu.registers[0] == 0xAB);

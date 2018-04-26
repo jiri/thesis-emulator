@@ -3,6 +3,7 @@
 #include <array>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 #include <fmt/format.h>
 
@@ -13,6 +14,11 @@ public:
     { }
 };
 
+struct IoHandler {
+    std::function<u8()> get = []() { return 0x00; };
+    std::function<void(u8)> set = [](u8) { };
+};
+
 class Mcu {
 public:
     void compile_and_load(const std::string& source);
@@ -20,17 +26,13 @@ public:
     void steps(u16 steps);
     void step();
 
-    void enable_interrupts();
-    void disable_interrupts();
-
-    void vblank_interrupt();
-    void button_interrupt(u8 button_state);
-    void keyboard_interrupt(u8 character);
+    bool interrupt_occured();
 
     u16 pc = 0;
     u16 sp = 0xFFFF;
 
-    std::array<u8, 0x100> io_memory {};
+    std::unordered_map<u8, IoHandler> io_handlers;
+
     std::array<u8, 0x10000> program {};
     std::array<u8, 0x10000> memory {};
     std::array<u8, 16> registers {};
@@ -39,6 +41,14 @@ public:
         bool carry = false;
         bool zero = false;
     } flags;
+
+    struct {
+        bool enabled = false;
+        bool vblank = false;
+        bool button = false;
+        bool keyboard = false;
+        bool serial = false;
+    } interrupts;
 
     bool stopped = false;
     bool sleeping = false;
