@@ -113,6 +113,14 @@ void Mcu::step() {
         case BREAK: {
             break;
         }
+        case EI: {
+            this->interrupts.enabled = true;
+            break;
+        }
+        case DI: {
+            this->interrupts.enabled = false;
+            break;
+        }
         case ADD: {
             auto [ rDst, rSrc ] = this->read_register_pair();
             this->flags.carry = __builtin_add_overflow(this->registers[rDst], this->registers[rSrc], &this->registers[rDst]);

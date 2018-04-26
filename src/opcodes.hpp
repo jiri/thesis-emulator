@@ -4,6 +4,8 @@
 #define STOP  0x01
 #define SLEEP 0x02
 #define BREAK 0x03
+#define EI    0x04
+#define DI    0x05
 
 #define ADD   0x10
 #define ADDC  0x11
