@@ -296,6 +296,16 @@ void Mcu::step() {
             this->memory[high << 8u | low] = this->registers[rSrc];
             break;
         }
+        case LPMD: {
+            auto rDst = this->read_register();
+            auto [ rHigh, rLow ] = this->read_register_pair();
+
+            auto high = this->registers[rHigh];
+            auto low = this->registers[rLow];
+
+            this->registers[rDst] = this->program[high << 8u | low];
+            break;
+        }
         case IN: {
             auto rDst = this->read_register();
             auto addr = this->read_byte();

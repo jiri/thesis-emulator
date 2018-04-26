@@ -34,5 +34,6 @@
 #define LPM   0x36
 #define LDD   0x37
 #define STD   0x38
-#define IN    0x39
-#define OUT   0x3A
+#define LPMD  0x39
+#define IN    0x3A
+#define OUT   0x3B
