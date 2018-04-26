@@ -21,7 +21,6 @@ struct IoHandler {
 
 class Mcu {
 public:
-    void compile_and_load(const std::string& source);
     void load_program(const std::vector<u8>& program);
     void steps(u16 steps);
     void step();

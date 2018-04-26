@@ -1,6 +1,43 @@
 #include "catch.hpp"
 
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <string>
+#include <iostream>
+
 #include <Mcu.hpp>
+
+namespace {
+    void compile_and_load(Mcu& mcu, const std::string &source) {
+        std::string filename = std::tmpnam(nullptr);
+        std::string assembler = std::getenv("ASSEMBLER");
+        std::string command = fmt::format("{} {} -o {}.bin", assembler, filename, filename);
+
+        if (assembler.empty()) {
+            throw std::runtime_error { "ASSEMBLER variable not set" };
+        }
+
+        /* Write the source */
+        std::ofstream(filename) << source;
+
+        /* Compile the source */
+        auto ret = std::system(command.c_str());
+
+        if (ret) {
+            throw std::runtime_error { "Assembly error" };
+        }
+
+        /* Read whole output file */
+        std::ifstream ifs(filename + ".bin", std::ios_base::binary | std::ios_base::ate);
+        auto size = ifs.tellg();
+        std::vector<u8> program(size);
+        ifs.seekg(0, std::ios_base::beg);
+        ifs.read(reinterpret_cast<char*>(program.data()), size);
+
+        mcu.load_program(program);
+    }
+}
 
 TEST_CASE("Mcu works", "[mcu]" ) {
     Mcu mcu;
@@ -10,7 +47,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     };
 
     SECTION("Stepping increases PC") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             nop
         )");
 
@@ -20,7 +57,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Add sets carry flag") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0xFF
             ldi R1, 0x01
             add R0, R1
@@ -32,7 +69,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Add sets zero flag") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             add R0, R0
         )");
 
@@ -42,7 +79,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sub sets carry flag") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x00
             ldi R1, 0x01
             sub R0, R1
@@ -54,7 +91,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sub sets zero flag") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             sub R0, R0
         )");
 
@@ -64,7 +101,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Inc works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x00
             loop:
                 inc R0
@@ -78,7 +115,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Dec works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0xFF
             loop:
                 dec R0
@@ -93,7 +130,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Adc works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0xFF
             ldi R1, 0xFF
             ldi R2, 0x01
@@ -116,7 +153,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Subc works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x00
             ldi R1, 0x00
             ldi R2, 0x01
@@ -139,7 +176,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("And works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x55 ; 0b01010101
             ldi R1, 0xAA ; 0b10101010
             and R0, R1
@@ -153,7 +190,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Or works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x55 ; 0b01010101
             ldi R1, 0xAA ; 0b10101010
             or R0, R1
@@ -167,7 +204,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Xor works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x55 ; 0b01010101
             ldi R1, 0xAA ; 0b10101010
             xor R0, R1
@@ -191,7 +228,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Call / Ret works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x10
             ldi R1, 0x0A
             call function
@@ -208,7 +245,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Cmp works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x10
             ldi R1, 0x21
             cmp R0, R1
@@ -227,7 +264,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Stack works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0xEE
             ldi R1, 0xFF
             ldi R2, 0xC0
@@ -248,7 +285,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Interrupts work") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             .org 0x0 ; Reset vector
                 ei
                 jmp 0x100
@@ -270,7 +307,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Stop works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0xFF
             stop
         )");
@@ -287,7 +324,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sleep works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             .org 0x0 ; Reset vector
               ei
               jmp 0x100
@@ -311,7 +348,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Ldd / Std works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             ldi R0, 0x01
             ldi R1, 0x02
 
@@ -331,7 +368,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("In / Out works") {
-        mcu.compile_and_load(R"(
+        compile_and_load(mcu, R"(
             .org 0x00
               ei
               jmp 0x100

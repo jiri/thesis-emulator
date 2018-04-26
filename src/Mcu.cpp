@@ -2,9 +2,6 @@
 
 #include <cassert>
 #include <stdexcept>
-#include <fstream>
-#include <string>
-#include <iostream>
 
 #include <fmt/format.h>
 
@@ -25,32 +22,6 @@ constexpr inline u8 high_nibble(u8 x) {
 
 constexpr inline u8 low_nibble(u8 x) {
     return static_cast<u8>((x & 0x0Fu) >> 0u);
-}
-
-void Mcu::compile_and_load(const std::string &source) {
-    std::string filename = std::tmpnam(nullptr);
-    std::string assembler = std::getenv("ASSEMBLER");
-    std::string command = fmt::format("{} {} -o {}.bin", assembler, filename, filename);
-
-    if (assembler.empty()) {
-        throw std::runtime_error { "ASSEMBLER variable not set" };
-    }
-
-    /* Write the source */
-    std::ofstream(filename) << source;
-
-    /* Compile the source */
-    auto ret = std::system(command.c_str());
-
-    if (ret) {
-        throw std::runtime_error { "Assembly error" };
-    }
-
-    /* Read whole output file */
-    std::ifstream ifs(filename + ".bin", std::ios_base::binary | std::ios_base::ate);
-    auto size = ifs.tellg();
-    ifs.seekg(0, std::ios_base::beg);
-    ifs.read(reinterpret_cast<char *>(this->program.data()), size);
 }
 
 void Mcu::load_program(const std::vector<u8>& binary) {
