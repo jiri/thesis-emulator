@@ -4,6 +4,15 @@
 #include <utility>
 #include <vector>
 
+#include <fmt/format.h>
+
+class illegal_opcode_error : std::domain_error {
+public:
+    explicit illegal_opcode_error(u8 opcode)
+        : std::domain_error { fmt::format("Illegal opcode {:0x}", opcode) }
+    { }
+};
+
 class Mcu {
 public:
     void compile_and_load(const std::string& source);

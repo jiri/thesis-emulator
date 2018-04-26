@@ -319,7 +319,7 @@ void Mcu::step() {
             break;
         }
         default: {
-            throw std::domain_error { "Illegal opcode" };
+            throw illegal_opcode_error { opcode };
         }
     }
 }
