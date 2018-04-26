@@ -248,10 +248,9 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Interrupts work") {
-        mcu.interrupts.enabled = true;
-
         mcu.compile_and_load(R"(
             .org 0x0 ; Reset vector
+                ei
                 jmp 0x100
 
             .org 0x20 ; Button press vector
@@ -263,7 +262,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
                 mov R0, R1
         )");
 
-        mcu.steps(2);
+        mcu.steps(3);
         mcu.interrupts.button = true;
         mcu.steps(3);
 
@@ -271,8 +270,6 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Stop works") {
-        mcu.interrupts.enabled = true;
-
         mcu.compile_and_load(R"(
             ldi R0, 0xFF
             stop
@@ -290,21 +287,20 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Sleep works") {
-        mcu.interrupts.enabled = true;
-
         mcu.compile_and_load(R"(
             .org 0x0 ; Reset vector
-                jmp 0x100
+              ei
+              jmp 0x100
 
             .org 0x20 ; Button press vector
-                ldi R0, 0xFF
-                reti
+              ldi R0, 0xFF
+              reti
 
             .org 0x100
-                sleep
+              sleep
         )");
 
-        mcu.steps(2);
+        mcu.steps(3);
         REQUIRE(mcu.sleeping);
         mcu.steps(8);
         REQUIRE(mcu.sleeping);
@@ -315,8 +311,6 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("Ldd / Std works") {
-        mcu.interrupts.enabled = true;
-
         mcu.compile_and_load(R"(
             ldi R0, 0x01
             ldi R1, 0x02
@@ -337,10 +331,9 @@ TEST_CASE("Mcu works", "[mcu]" ) {
     }
 
     SECTION("In / Out works") {
-        mcu.interrupts.enabled = true;
-
         mcu.compile_and_load(R"(
             .org 0x00
+              ei
               jmp 0x100
 
             .org 0x20 ; Button press
@@ -352,7 +345,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
               nop
         )");
 
-        mcu.steps(2);
+        mcu.steps(3);
         mcu.interrupts.button = true;
         mcu.steps(3);
 
