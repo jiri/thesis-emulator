@@ -292,13 +292,21 @@ void Mcu::step() {
         case IN: {
             auto rDst = this->read_register();
             auto addr = this->read_byte();
-            this->registers[rDst] = this->io_handlers[addr].get();
+
+            auto it = this->io_handlers.find(addr);
+            if (it != this->io_handlers.end()) {
+                this->registers[rDst] = it->second.get();
+            }
             break;
         }
         case OUT: {
             auto rSrc = this->read_register();
             auto addr = this->read_byte();
-            this->io_handlers[addr].set(this->registers[rSrc]);
+
+            auto it = this->io_handlers.find(addr);
+            if (it != this->io_handlers.end()) {
+                it->second.set(this->registers[rSrc]);
+            }
             break;
         }
         default: {
