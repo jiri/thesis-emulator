@@ -7,6 +7,8 @@
 
 #include <fmt/format.h>
 
+#include <typedefs.hpp>
+
 class illegal_opcode_error : std::domain_error {
 public:
     explicit illegal_opcode_error(u8 opcode)

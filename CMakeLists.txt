@@ -4,16 +4,15 @@ project(emulator)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_compile_options(-include${CMAKE_CURRENT_SOURCE_DIR}/common/typedefs.hpp)
-
 link_libraries(fmt)
 
 # Library
 set(SOURCE_FILES
         src/Mcu.hpp
         src/Mcu.cpp
-        src/opcodes.hpp
         src/interrupts.hpp
+        src/opcodes.hpp
+        src/typedefs.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
