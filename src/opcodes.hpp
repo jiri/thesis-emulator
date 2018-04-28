@@ -1,5 +1,7 @@
 #pragma once
 
+#include <util.hpp>
+
 #define NOP   0x00
 #define STOP  0x01
 #define SLEEP 0x02

@@ -9,13 +9,6 @@
 
 #include <typedefs.hpp>
 
-class illegal_opcode_error : std::domain_error {
-public:
-    explicit illegal_opcode_error(u8 opcode)
-        : std::domain_error { fmt::format("Illegal opcode {:0x}", opcode) }
-    { }
-};
-
 struct IoHandler {
     std::function<u8()> get = []() { return 0x00; };
     std::function<void(u8)> set = [](u8) { };
