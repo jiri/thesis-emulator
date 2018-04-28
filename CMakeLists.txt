@@ -13,6 +13,7 @@ set(SOURCE_FILES
         src/interrupts.hpp
         src/opcodes.hpp
         src/typedefs.hpp
+        src/util.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
