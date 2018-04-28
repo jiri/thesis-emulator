@@ -368,3 +368,117 @@ u16 Mcu::read_word() {
 
     return static_cast<u16>(high << 8u | low);
 }
+
+// TODO: Don't use PC here
+std::vector<DisassembledInstruction> Mcu::disassemble() {
+    auto old_pc = this->pc;
+    this->pc = 0x00;
+    std::vector<DisassembledInstruction> disassembled_program {};
+
+    while (this->pc < 0xFFFF) {
+        DisassembledInstruction instruction {
+            .position = this->pc,
+            .binary = {},
+            .print = {},
+        };
+
+        u8 opcode = this->read_byte();
+        instruction.binary.push_back(opcode);
+
+        switch (opcode) {
+            case NOP:
+            case STOP:
+            case SLEEP:
+            case BREAK:
+            case EI:
+            case DI:
+            case RET:
+            case RETI: {
+                instruction.print = opcode_str(opcode);
+                break;
+            }
+            case ADD:
+            case ADDC:
+            case SUB:
+            case SUBC:
+            case AND:
+            case OR:
+            case XOR:
+            case CMP:
+            case MOV: {
+                auto [ rDst, rSrc ] = this->read_register_pair();
+                instruction.binary.push_back(rDst << 4u | rSrc);
+                instruction.print = fmt::format("{} R{}, R{}", opcode_str(opcode), rDst, rSrc);
+                break;
+            }
+            case INC:
+            case DEC:
+            case PUSH:
+            case POP: {
+                auto rDst = this->read_register();
+                instruction.binary.push_back(rDst);
+                instruction.print = fmt::format("{} R{}", opcode_str(opcode), rDst);
+                break;
+            }
+            case CMPI:
+            case LDI: {
+                auto reg = this->read_register();
+                auto val = this->read_byte();
+                instruction.binary.push_back(reg);
+                instruction.binary.push_back(val);
+                instruction.print = fmt::format("{} R{}, 0x{:X}", opcode_str(opcode), reg, val);
+                break;
+            }
+            case JMP:
+            case CALL:
+            case BRC:
+            case BRNC:
+            case BRZ:
+            case BRNZ: {
+                auto addr = this->read_word();
+                instruction.binary.push_back(high_byte(addr));
+                instruction.binary.push_back(low_byte(addr));
+                instruction.print = fmt::format("{} 0x{:X}", opcode_str(opcode), addr);
+                break;
+            }
+            case LD:
+            case ST:
+            case LPM: {
+                auto rDst = this->read_register();
+                auto addr = this->read_word();
+                instruction.binary.push_back(rDst);
+                instruction.binary.push_back(high_byte(addr));
+                instruction.binary.push_back(low_byte(addr));
+                instruction.print = fmt::format("{} R{}, 0x{:X}", opcode_str(opcode), rDst, addr);
+                break;
+            }
+            case LDD:
+            case STD:
+            case LPMD: {
+                auto rDst = this->read_register();
+                auto [ rHigh, rLow ] = this->read_register_pair();
+                instruction.binary.push_back(rDst);
+                instruction.binary.push_back(rHigh << 4u | rLow);
+                instruction.print = fmt::format("{} R{}, [R{}:R{}]", opcode_str(opcode), rDst, rHigh, rLow);
+                break;
+            }
+            case IN:
+            case OUT: {
+                auto rSrc = this->read_register();
+                auto addr = this->read_byte();
+                instruction.binary.push_back(rSrc);
+                instruction.binary.push_back(addr);
+                instruction.print = fmt::format("{} R{}, 0x{:X}", opcode_str(opcode), rSrc, addr);
+                break;
+            }
+            default: {
+                throw illegal_opcode_error { opcode };
+            }
+        }
+
+        disassembled_program.push_back(instruction);
+    }
+
+    this->pc = old_pc;
+    return disassembled_program;
+}

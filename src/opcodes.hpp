@@ -40,3 +40,51 @@
 #define LPMD  0x39
 #define IN    0x3A
 #define OUT   0x3B
+
+std::string opcode_str(u8 opcode) {
+    switch (opcode) {
+        case NOP:   return "nop";
+        case STOP:  return "stop";
+        case SLEEP: return "sleep";
+        case BREAK: return "break";
+        case EI:    return "ei";
+        case DI:    return "di";
+
+        case ADD:   return "add";
+        case ADDC:  return "addc";
+        case SUB:   return "sub";
+        case SUBC:  return "subc";
+        case INC:   return "inc";
+        case DEC:   return "dec";
+        case AND:   return "and";
+        case OR:    return "or";
+        case XOR:   return "xor";
+        case CMP:   return "cmp";
+        case CMPI:  return "cmpi";
+
+        case JMP:   return "jmp";
+        case CALL:  return "call";
+        case RET:   return "ret";
+        case RETI:  return "reti";
+        case BRC:   return "brc";
+        case BRNC:  return "brnc";
+        case BRZ:   return "brz";
+        case BRNZ:  return "brnz";
+
+        case MOV:   return "mov";
+        case LDI:   return "ldi";
+        case LD:    return "ld";
+        case ST:    return "st";
+        case PUSH:  return "push";
+        case POP:   return "pop";
+        case LPM:   return "lpm";
+        case LDD:   return "ldd";
+        case STD:   return "std";
+        case LPMD:  return "lpmd";
+        case IN:    return "in";
+        case OUT:   return "out";
+
+        default:
+            throw illegal_opcode_error { opcode };
+    }
+}

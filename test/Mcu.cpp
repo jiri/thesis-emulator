@@ -411,4 +411,31 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         REQUIRE(!mcu.flags.zero);
         REQUIRE(!mcu.flags.carry);
     }
+
+    SECTION("Disassembly works") {
+        compile_and_load(mcu, R"(
+            nop
+            ldi R12, 0xAB
+            inc R1
+            in R0, 0x24
+        )");
+
+        std::vector<DisassembledInstruction> correct {
+            { 0x00, { 0x00 },             "nop"           },
+            { 0x01, { 0x31, 0x0C, 0xAB }, "ldi R12, 0xAB" },
+            { 0x04, { 0x14, 0x01 },       "inc R1"        },
+            { 0x06, { 0x3A, 0x00, 0x24 }, "in R0, 0x24"   },
+        };
+
+        std::vector<DisassembledInstruction> actual = mcu.disassemble();
+        actual.resize(4);
+
+        REQUIRE(correct.size() == actual.size());
+
+        for (size_t i = 0; i < actual.size(); i++) {
+            REQUIRE(correct[i].position == actual[i].position);
+            REQUIRE(correct[i].binary == actual[i].binary);
+            REQUIRE(correct[i].print == actual[i].print);
+        }
+    }
 }

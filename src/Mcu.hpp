@@ -19,11 +19,19 @@ struct IoHandler {
     std::function<void(u8)> set = [](u8) { };
 };
 
+struct DisassembledInstruction {
+    u16 position;
+    std::vector<u8> binary;
+    std::string print;
+};
+
 class Mcu {
 public:
     void load_program(const std::vector<u8>& program);
     void steps(u16 steps);
     void step();
+
+    std::vector<DisassembledInstruction> disassemble();
 
     bool interrupt_occured();
 
