@@ -30,14 +30,15 @@ public:
 
     bool interrupt_occured();
 
-    u16 pc = 0;
+    u16 pc = 0x0000;
     u16 sp = 0xFFFF;
 
     std::unordered_map<u8, IoHandler> io_handlers;
 
+    std::array<u8, 16> registers {};
+
     std::array<u8, 0x10000> program {};
     std::array<u8, 0x10000> memory {};
-    std::array<u8, 16> registers {};
 
     struct {
         bool carry = false;
