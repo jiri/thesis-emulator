@@ -388,4 +388,27 @@ TEST_CASE("Mcu works", "[mcu]" ) {
 
         REQUIRE(mcu.registers[0] == 0xAB);
     }
+
+    SECTION("Cmpi works") {
+        compile_and_load(mcu, R"(
+            ldi R0, 0xFF
+            cmpi R0, 0xFF
+
+            ldi R0, 0x0A
+            cmpi R0, 0xFF
+
+            ldi R0, 0xFF
+            cmpi R0, 0x0A
+        )");
+
+        mcu.steps(2);
+        REQUIRE(mcu.flags.zero);
+        REQUIRE(!mcu.flags.carry);
+        mcu.steps(2);
+        REQUIRE(!mcu.flags.zero);
+        REQUIRE(mcu.flags.carry);
+        mcu.steps(2);
+        REQUIRE(!mcu.flags.zero);
+        REQUIRE(!mcu.flags.carry);
+    }
 }

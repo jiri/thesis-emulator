@@ -17,6 +17,7 @@
 #define OR    0x17
 #define XOR   0x18
 #define CMP   0x19
+#define CMPI  0x1A
 
 #define JMP   0x20
 #define CALL  0x21

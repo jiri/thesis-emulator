@@ -172,6 +172,14 @@ void Mcu::step() {
             this->flags.zero = result == 0;
             break;
         }
+        case CMPI: {
+            auto reg = this->read_register();
+            auto val = this->read_byte();
+            u8 result = 0;
+            this->flags.carry = __builtin_sub_overflow(this->registers[reg], val, &result);
+            this->flags.zero = result == 0;
+            break;
+        }
         case JMP: {
             auto addr = this->read_word();
             this->pc = addr;
