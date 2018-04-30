@@ -10,7 +10,9 @@
 #include <util.hpp>
 
 void Mcu::load_program(const std::vector<u8>& binary) {
-    assert(this->program.size() >= binary.size());
+    if (binary.size() > this->program.size()) {
+        std::copy(binary.begin(), binary.begin() + this->program.size(), this->program.begin());
+    }
     std::copy(binary.begin(), binary.end(), this->program.begin());
 }
 
