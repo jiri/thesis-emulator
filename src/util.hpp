@@ -17,10 +17,3 @@ constexpr inline u8 high_nibble(u8 x) {
 constexpr inline u8 low_nibble(u8 x) {
     return static_cast<u8>((x & 0x0Fu) >> 0u);
 }
-
-class illegal_opcode_error : std::domain_error {
-public:
-    explicit illegal_opcode_error(u8 opcode)
-            : std::domain_error { fmt::format("Illegal opcode {:0x}", opcode) }
-    { }
-};

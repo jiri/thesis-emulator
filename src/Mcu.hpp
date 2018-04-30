@@ -20,6 +20,11 @@ struct DisassembledInstruction {
     std::string print;
 };
 
+class illegal_opcode_error : std::domain_error {
+public:
+    explicit illegal_opcode_error(u8 opcode);
+};
+
 class Mcu {
 public:
     void load_program(const std::vector<u8>& program);

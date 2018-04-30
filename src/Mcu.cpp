@@ -9,6 +9,10 @@
 #include <interrupts.hpp>
 #include <util.hpp>
 
+illegal_opcode_error::illegal_opcode_error(u8 opcode)
+    : std::domain_error { fmt::format("Illegal opcode {:0x}", opcode) }
+{ }
+
 void Mcu::load_program(const std::vector<u8>& binary) {
     if (binary.size() > this->program.size()) {
         std::copy(binary.begin(), binary.begin() + this->program.size(), this->program.begin());
