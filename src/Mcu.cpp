@@ -374,7 +374,7 @@ std::vector<DisassembledInstruction> Mcu::disassemble() {
     this->pc = 0x00;
     std::vector<DisassembledInstruction> disassembled_program {};
 
-    while (this->pc < 0xFFFF) {
+    while (true) {
         DisassembledInstruction instruction {
             .position = this->pc,
             .binary = {},
@@ -476,6 +476,11 @@ std::vector<DisassembledInstruction> Mcu::disassemble() {
         }
 
         disassembled_program.push_back(instruction);
+
+        // Overflow
+        if (this->pc == 0x0000) {
+            break;
+        }
     }
 
     this->pc = old_pc;

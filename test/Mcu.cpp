@@ -428,6 +428,7 @@ TEST_CASE("Mcu works", "[mcu]" ) {
         };
 
         std::vector<DisassembledInstruction> actual = mcu.disassemble();
+        REQUIRE(actual.size() == 0x10000 - 5);
         actual.resize(4);
 
         REQUIRE(correct.size() == actual.size());
