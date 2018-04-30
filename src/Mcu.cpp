@@ -14,6 +14,20 @@ void Mcu::load_program(const std::vector<u8>& binary) {
     std::copy(binary.begin(), binary.end(), this->program.begin());
 }
 
+void Mcu::reset() {
+    this->pc = 0x0000;
+    this->sp = 0xFFFF;
+
+    this->registers = {};
+    this->memory = {};
+
+    this->flags = {};
+    this->interrupts = {};
+
+    this->stopped = false;
+    this->sleeping = false;
+}
+
 void Mcu::steps(u16 steps) {
     for (u16 i = 0; i < steps; i++) {
         this->step();

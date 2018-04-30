@@ -23,6 +23,7 @@ struct DisassembledInstruction {
 class Mcu {
 public:
     void load_program(const std::vector<u8>& program);
+    void reset();
     void steps(u16 steps);
     void step();
 
