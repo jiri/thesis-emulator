@@ -471,7 +471,8 @@ std::vector<DisassembledInstruction> Mcu::disassemble() {
                 break;
             }
             default: {
-                throw illegal_opcode_error { opcode };
+                instruction.print = "ILLEGAL OPCODE";
+                break;
             }
         }
 
