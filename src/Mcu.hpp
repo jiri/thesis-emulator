@@ -20,7 +20,7 @@ struct DisassembledInstruction {
     std::string print;
 };
 
-class illegal_opcode_error : std::domain_error {
+class illegal_opcode_error : public std::domain_error {
 public:
     explicit illegal_opcode_error(u8 opcode);
 };
