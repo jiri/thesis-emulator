@@ -49,10 +49,10 @@ public:
     struct {
         bool carry = false;
         bool zero = false;
+        bool interrupt = false;
     } flags;
 
     struct {
-        bool enabled = false;
         bool vblank = false;
         bool button = false;
         bool keyboard = false;

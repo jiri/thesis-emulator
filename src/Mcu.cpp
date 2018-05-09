@@ -45,9 +45,9 @@ void Mcu::step() {
         return;
     }
 
-    if (this->interrupts.enabled && this->interrupt_occured()) {
+    if (this->flags.interrupt && this->interrupt_occured()) {
         this->sleeping = false;
-        this->interrupts.enabled = false;
+        this->flags.interrupt = false;
         this->push_u16(this->pc);
 
         if (this->interrupts.vblank) {
@@ -90,11 +90,11 @@ void Mcu::step() {
             break;
         }
         case EI: {
-            this->interrupts.enabled = true;
+            this->flags.interrupt = true;
             break;
         }
         case DI: {
-            this->interrupts.enabled = false;
+            this->flags.interrupt = false;
             break;
         }
         case ADD: {
@@ -201,7 +201,7 @@ void Mcu::step() {
             break;
         }
         case RETI: {
-            this->interrupts.enabled = true;
+            this->flags.interrupt = true;
             this->pc = this->pop_u16();
             break;
         }
