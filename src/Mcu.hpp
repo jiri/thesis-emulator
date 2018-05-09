@@ -1,9 +1,10 @@
 #pragma once
 
 #include <array>
+#include <functional>
+#include <unordered_map>
 #include <utility>
 #include <vector>
-#include <unordered_map>
 
 #include <fmt/format.h>
 
