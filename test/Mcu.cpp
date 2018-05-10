@@ -10,7 +10,8 @@
 
 namespace {
     void compile_and_load(Mcu& mcu, const std::string &source) {
-        std::string filename = std::tmpnam(nullptr);
+        std::string filename = "/tmp/asmtempXXXXXX";
+        mkstemp(filename.data());
         std::string assembler = std::getenv("ASSEMBLER");
         std::string command = fmt::format("{} {} -o {}.bin", assembler, filename, filename);
 
