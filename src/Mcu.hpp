@@ -33,7 +33,6 @@ public:
     void steps(u16 steps);
     void step();
 
-    std::vector<DisassembledInstruction> disassemble();
 
     bool interrupt_occured();
 
