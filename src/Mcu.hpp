@@ -59,7 +59,6 @@ public:
         bool serial = false;
     } interrupts;
 
-    bool stopped = false;
     bool sleeping = false;
 
 private:

@@ -30,7 +30,6 @@ void Mcu::reset() {
     this->flags = {};
     this->interrupts = {};
 
-    this->stopped = false;
     this->sleeping = false;
 }
 
@@ -41,10 +40,6 @@ void Mcu::steps(u16 steps) {
 }
 
 void Mcu::step() {
-    if (this->stopped) {
-        return;
-    }
-
     if (this->flags.interrupt && this->interrupt_occured()) {
         this->sleeping = false;
         this->flags.interrupt = false;
