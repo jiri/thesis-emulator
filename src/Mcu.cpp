@@ -78,10 +78,6 @@ void Mcu::step() {
         case NOP: {
             break;
         }
-        case STOP: {
-            this->stopped = true;
-            break;
-        }
         case SLEEP: {
             this->sleeping = true;
             break;
@@ -89,12 +85,28 @@ void Mcu::step() {
         case BREAK: {
             break;
         }
-        case EI: {
+        case SEI: {
             this->flags.interrupt = true;
             break;
         }
-        case DI: {
+        case SEC: {
+            this->flags.carry = true;
+            break;
+        }
+        case SEZ: {
+            this->flags.zero = true;
+            break;
+        }
+        case CLI: {
             this->flags.interrupt = false;
+            break;
+        }
+        case CLC: {
+            this->flags.carry = false;
+            break;
+        }
+        case CLZ: {
+            this->flags.zero = false;
             break;
         }
         case ADD: {
@@ -103,7 +115,7 @@ void Mcu::step() {
             this->flags.zero = this->registers[rDst] == 0;
             break;
         }
-        case ADDC: {
+        case ADC: {
             auto [ rDst, rSrc ] = this->read_register_pair();
             bool carry1 = false;
             bool carry2 = false;
@@ -123,7 +135,7 @@ void Mcu::step() {
             this->flags.zero = this->registers[rDst] == 0;
             break;
         }
-        case SUBC: {
+        case SBC: {
             auto [ rDst, rSrc ] = this->read_register_pair();
             bool carry1 = false;
             bool carry2 = false;
@@ -170,14 +182,14 @@ void Mcu::step() {
             this->flags.zero = this->registers[rDst] == 0;
             break;
         }
-        case CMP: {
+        case CP: {
             auto [ r0, r1 ] = this->read_register_pair();
             u8 result = 0;
             this->flags.carry = __builtin_sub_overflow(this->registers[r0], this->registers[r1], &result);
             this->flags.zero = result == 0;
             break;
         }
-        case CMPI: {
+        case CPI: {
             auto reg = this->read_register();
             auto val = this->read_byte();
             u8 result = 0;
@@ -246,13 +258,13 @@ void Mcu::step() {
         }
         case LD: {
             auto rDst = this->read_register();
-            auto addr = this->read_word();
+            auto addr = this->registers[14] << 8 | this->registers[15];
             this->registers[rDst] = this->memory[addr];
             break;
         }
         case ST: {
             auto rDst = this->read_register();
-            auto addr = this->read_word();
+            auto addr = this->registers[12] << 8 | this->registers[13];
             this->memory[addr] = this->registers[rDst];
             break;
         }
@@ -268,38 +280,8 @@ void Mcu::step() {
         }
         case LPM: {
             auto rDst = this->read_register();
-            auto addr = this->read_word();
+            auto addr = this->registers[14] << 8 | this->registers[15];
             this->registers[rDst] = this->program[addr];
-            break;
-        }
-        case LDD: {
-            auto rDst = this->read_register();
-            auto [ rHigh, rLow ] = this->read_register_pair();
-
-            auto high = this->registers[rHigh];
-            auto low = this->registers[rLow];
-
-            this->registers[rDst] = this->memory[high << 8u | low];
-            break;
-        }
-        case STD: {
-            auto rSrc = this->read_register();
-            auto [ rHigh, rLow ] = this->read_register_pair();
-
-            auto high = this->registers[rHigh];
-            auto low = this->registers[rLow];
-
-            this->memory[high << 8u | low] = this->registers[rSrc];
-            break;
-        }
-        case LPMD: {
-            auto rDst = this->read_register();
-            auto [ rHigh, rLow ] = this->read_register_pair();
-
-            auto high = this->registers[rHigh];
-            auto low = this->registers[rLow];
-
-            this->registers[rDst] = this->program[high << 8u | low];
             break;
         }
         case IN: {
