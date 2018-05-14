@@ -53,10 +53,6 @@ void Mcu::step() {
             this->interrupts.button = false;
             this->pc = BUTTON_VECTOR;
         }
-        else if (this->interrupts.keyboard) {
-            this->interrupts.keyboard = false;
-            this->pc = KEYBOARD_VECTOR;
-        }
         else if (this->interrupts.serial) {
             this->interrupts.serial = false;
             this->pc = SERIAL_VECTOR;
@@ -308,7 +304,6 @@ void Mcu::step() {
 bool Mcu::interrupt_occured() {
     return this->interrupts.vblank
         || this->interrupts.button
-        || this->interrupts.keyboard
         || this->interrupts.serial;
 }
 

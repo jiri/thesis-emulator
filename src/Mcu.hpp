@@ -48,7 +48,6 @@ public:
     struct {
         bool vblank = false;
         bool button = false;
-        bool keyboard = false;
         bool serial = false;
     } interrupts;
 
